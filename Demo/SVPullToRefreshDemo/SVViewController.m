@@ -28,6 +28,7 @@
     [self.tableView addPullToRefreshWithActionHandler:^{
         [weakSelf insertRowAtTop];
     }];
+    self.tableView.pullToRefreshView.triggerRefreshWithoutRelease = YES;
         
     // setup infinite scrolling
     [self.tableView addInfiniteScrollingWithActionHandler:^{
