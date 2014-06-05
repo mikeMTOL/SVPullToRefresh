@@ -36,7 +36,7 @@
         [images addObject:[UIImage imageNamed:fname]];
     }
     
-    self.tableView.pullToRefreshView.activityIndicatorView = [[SVActivityIndicatorView alloc] initWithImageArray:images andFramerate:30.0f];
+    self.tableView.pullToRefreshView.activityIndicatorView = [[SVActivityIndicatorView alloc] initWithImageArray:images andDuration:1.0f];
         
     // setup infinite scrolling
     [self.tableView addInfiniteScrollingWithActionHandler:^{
@@ -75,7 +75,7 @@
 - (void)insertRowAtBottom {
     __weak SVViewController *weakSelf = self;
 
-    int64_t delayInSeconds = 2.0;
+    int64_t delayInSeconds = 3.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         [weakSelf.tableView beginUpdates];
