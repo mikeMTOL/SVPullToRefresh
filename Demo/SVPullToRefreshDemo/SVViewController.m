@@ -29,6 +29,14 @@
         [weakSelf insertRowAtTop];
     }];
     self.tableView.pullToRefreshView.triggerRefreshWithoutRelease = YES;
+    NSMutableArray *images =[NSMutableArray array];
+    for (int i=0;i<83;i++)
+    {
+        NSString *fname = [NSString stringWithFormat:@"Preloader_9_%05d",i];
+        [images addObject:[UIImage imageNamed:fname]];
+    }
+    
+    self.tableView.pullToRefreshView.activityIndicatorView = [[SVActivityIndicatorView alloc] initWithImageArray:images andFramerate:30.0f];
         
     // setup infinite scrolling
     [self.tableView addInfiniteScrollingWithActionHandler:^{
