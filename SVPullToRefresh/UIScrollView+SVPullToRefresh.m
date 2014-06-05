@@ -166,6 +166,8 @@ static char UIScrollViewPullToRefreshView;
 @synthesize arrow = _arrow;
 @synthesize activityIndicatorView = _activityIndicatorView;
 
+@synthesize triggerRefreshWithoutRelease = _triggerRefreshWithoutRelease;
+
 @synthesize titleLabel = _titleLabel;
 @synthesize dateLabel = _dateLabel;
 
@@ -647,6 +649,9 @@ static char UIScrollViewPullToRefreshView;
             break;
             
         case SVPullToRefreshStateTriggered:
+            if(self.triggerRefreshWithoutRelease) {
+                self.state = SVPullToRefreshStateLoading;
+            }
             break;
             
         case SVPullToRefreshStateLoading:
