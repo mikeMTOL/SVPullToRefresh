@@ -767,8 +767,9 @@ static char UIScrollViewPullToRefreshView;
 @end
 
 @implementation SVActivityIndicatorView
+@synthesize duration, loadingImagesArray;
 
--(instancetype) initWithImageArray:(NSArray*) imagesArray andFramerate:(CGFloat)framerate
+-(instancetype) initWithImageArray:(NSArray*) imagesArray andDuration:(CGFloat)d
 {
     NSParameterAssert(imagesArray.count>0);
     NSParameterAssert([imagesArray.firstObject isKindOfClass:[UIImage class]]);
@@ -779,10 +780,11 @@ static char UIScrollViewPullToRefreshView;
     
     if(self) {
         self.loadingImagesArray = imagesArray;
-        self.frameRate = framerate;
+        self.duration = d;
         self.imageView = [[UIImageView alloc] initWithImage:firstImage];
         self.imageView.animationImages = imagesArray;
-        self.imageView.animationDuration = ((CGFloat)imagesArray.count)/framerate;
+        self.imageView.animationDuration = self.duration;
+        self.imageView.animationRepeatCount = 0;
         [self addSubview:self.imageView];
     }
     

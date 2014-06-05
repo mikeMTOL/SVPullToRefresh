@@ -72,8 +72,8 @@ typedef NS_ENUM(NSUInteger, SVPullToRefreshState) {
 @interface SVActivityIndicatorView: UIActivityIndicatorView
 
 @property (nonatomic, strong) NSArray* loadingImagesArray;
-@property (nonatomic, assign) CGFloat frameRate;
+@property (nonatomic, assign) CGFloat duration;
 
--(instancetype) initWithImageArray:(NSArray*) imagesArray andFramerate:(CGFloat)framerate;
+-(instancetype) initWithImageArray:(NSArray*) imagesArray andDuration:(CGFloat)duration;
 
 @end
