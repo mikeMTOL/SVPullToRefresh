@@ -43,6 +43,7 @@ typedef NS_ENUM(NSUInteger, SVPullToRefreshState) {
 @property (nonatomic, strong) UIColor *textColor;
 @property (nonatomic, strong, readonly) UILabel *titleLabel;
 @property (nonatomic, strong, readonly) UILabel *subtitleLabel;
+@property (nonatomic, strong) UIActivityIndicatorView *activityIndicatorView NS_AVAILABLE_IOS(5_0);
 @property (nonatomic, strong, readwrite) UIColor *activityIndicatorViewColor NS_AVAILABLE_IOS(5_0);
 @property (nonatomic, readwrite) UIActivityIndicatorViewStyle activityIndicatorViewStyle;
 @property (nonatomic, assign) BOOL triggerRefreshWithoutRelease;
@@ -64,5 +65,15 @@ typedef NS_ENUM(NSUInteger, SVPullToRefreshState) {
 
 // deprecated; use [self.scrollView triggerPullToRefresh] instead
 - (void)triggerRefresh DEPRECATED_ATTRIBUTE;
+
+@end
+
+
+@interface SVActivityIndicatorView: UIActivityIndicatorView
+
+@property (nonatomic, strong) NSArray* loadingImagesArray;
+@property (nonatomic, assign) CGFloat frameRate;
+
+-(instancetype) initWithImageArray:(NSArray*) imagesArray andFramerate:(CGFloat)framerate;
 
 @end

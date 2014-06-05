@@ -28,7 +28,6 @@ static CGFloat const SVPullToRefreshViewHeight = 60;
 @property (nonatomic, copy) void (^pullToRefreshActionHandler)(void);
 
 @property (nonatomic, strong) SVPullToRefreshArrow *arrow;
-@property (nonatomic, strong) UIActivityIndicatorView *activityIndicatorView;
 @property (nonatomic, strong, readwrite) UILabel *titleLabel;
 @property (nonatomic, strong, readwrite) UILabel *subtitleLabel;
 @property (nonatomic, readwrite) SVPullToRefreshState state;
@@ -453,7 +452,7 @@ static char UIScrollViewPullToRefreshView;
 
 - (UIActivityIndicatorView *)activityIndicatorView {
     if(!_activityIndicatorView) {
-        _activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+        _activityIndicatorView = [[SVActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
         _activityIndicatorView.hidesWhenStopped = YES;
         [self addSubview:_activityIndicatorView];
     }
@@ -562,6 +561,18 @@ static char UIScrollViewPullToRefreshView;
     textColor = newTextColor;
     self.titleLabel.textColor = newTextColor;
 	self.subtitleLabel.textColor = newTextColor;
+}
+
+- (void)setActivityIndicatorView:(UIActivityIndicatorView *)activityIndicatorView
+{
+    if(_activityIndicatorView) {
+        if(_activityIndicatorView.superview) {
+            [_activityIndicatorView removeFromSuperview];
+        }
+    }
+    _activityIndicatorView = activityIndicatorView;
+    _activityIndicatorView.hidesWhenStopped = YES;
+    [self addSubview:_activityIndicatorView];
 }
 
 - (void)setActivityIndicatorViewColor:(UIColor *)color {
@@ -749,3 +760,48 @@ static char UIScrollViewPullToRefreshView;
 	CGColorSpaceRelease(colorSpace);
 }
 @end
+
+#pragma mark - SVActivityIndicatorView
+@interface SVActivityIndicatorView()
+@property (strong, nonatomic) UIImageView* imageView;
+@end
+
+@implementation SVActivityIndicatorView
+
+-(instancetype) initWithImageArray:(NSArray*) imagesArray andFramerate:(CGFloat)framerate
+{
+    NSParameterAssert(imagesArray.count>0);
+    NSParameterAssert([imagesArray.firstObject isKindOfClass:[UIImage class]]);
+    
+    UIImage *firstImage = imagesArray.firstObject;
+
+    self = [super initWithFrame:CGRectMake(0, 0, firstImage.size.width, firstImage.size.height)];
+    
+    if(self) {
+        self.loadingImagesArray = imagesArray;
+        self.frameRate = framerate;
+        self.imageView = [[UIImageView alloc] initWithImage:firstImage];
+        self.imageView.animationImages = imagesArray;
+        self.imageView.animationDuration = ((CGFloat)imagesArray.count)/framerate;
+        [self addSubview:self.imageView];
+    }
+    
+    return self;
+}
+
+- (void)startAnimating {
+    [super startAnimating];
+    [self.imageView startAnimating];
+}
+
+- (void)stopAnimating {
+    [super stopAnimating];
+    [self.imageView  stopAnimating];
+}
+
+- (BOOL)isAnimating {
+    return self.imageView.isAnimating;
+}
+
+@end
+
