@@ -28,16 +28,24 @@
     [self.tableView addPullToRefreshWithActionHandler:^{
         [weakSelf insertRowAtTop];
     }];
-    self.tableView.pullToRefreshView.triggerRefreshWithoutRelease = YES;
+    self.tableView.pullToRefreshView.superview.backgroundColor = [UIColor whiteColor];
+    self.tableView.pullToRefreshView.triggerRefreshWithoutRelease = NO;
+
     NSMutableArray *images =[NSMutableArray array];
-    for (int i=0;i<83;i++)
+    for (int i=0;i<60;i++)
     {
-        NSString *fname = [NSString stringWithFormat:@"Preloader_9_%05d",i];
-        [images addObject:[UIImage imageNamed:fname]];
+        NSString *fname = [NSString stringWithFormat:@"loader%05d",i];
+        UIImage* img = [[UIImage imageNamed:fname] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        [images addObject:img];
     }
     
     self.tableView.pullToRefreshView.activityIndicatorView = [[SVActivityIndicatorView alloc] initWithImageArray:images andDuration:1.0f];
-        
+    self.tableView.pullToRefreshView.activityIndicatorView.tintColor = [UIColor redColor];
+    
+    UIImageView* loadingImageView = [[UIImageView alloc] initWithImage:images.firstObject];
+    loadingImageView.tintColor = [UIColor grayColor];
+    [self.tableView.pullToRefreshView setCustomView:loadingImageView forState:SVPullToRefreshStateStopped];
+    
     // setup infinite scrolling
     [self.tableView addInfiniteScrollingWithActionHandler:^{
         [weakSelf insertRowAtBottom];
@@ -59,7 +67,7 @@
 - (void)insertRowAtTop {
     __weak SVViewController *weakSelf = self;
 
-    int64_t delayInSeconds = 2.0;
+    int64_t delayInSeconds = 10.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
         [weakSelf.tableView beginUpdates];
