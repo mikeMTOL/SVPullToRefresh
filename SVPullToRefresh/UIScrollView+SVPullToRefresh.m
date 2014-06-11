@@ -532,6 +532,10 @@ static char UIScrollViewPullToRefreshView;
     return self.activityIndicatorView.activityIndicatorViewStyle;
 }
 
+- (UIView*)customViewForState:(SVPullToRefreshState)state {
+    return [self.viewForState objectAtIndex:state];
+}
+
 #pragma mark - Setters
 
 - (void)setArrowColor:(UIColor *)newArrowColor {
