@@ -834,11 +834,16 @@ static char UIScrollViewPullToRefreshView;
     if(self.animationTimer) {
         [self.animationTimer invalidate];
     }
-    self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:self.framerate
-                                                           target:self
-                                                         selector:@selector(animateImages:)
-                                                         userInfo:self.imageView
-                                                          repeats:YES];
+
+    // only launch timer when there's a need for it
+    if(self.loadingImagesArray.count > 0 && self.duration > 0) {
+        self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:self.framerate
+                                                               target:self
+                                                             selector:@selector(animateImages:)
+                                                             userInfo:self.imageView
+                                                              repeats:YES];
+        
+    }
 }
 
 -(CGFloat) framerate
