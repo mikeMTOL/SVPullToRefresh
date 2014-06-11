@@ -412,7 +412,7 @@ static char UIScrollViewPullToRefreshView;
                 scrollOffsetThreshold = MAX(self.scrollView.contentSize.height - self.scrollView.bounds.size.height, 0.0f) + self.bounds.size.height + self.originalBottomInset;
                 break;
         }
-        NSLog(@"%f",contentOffset.y/scrollOffsetThreshold);
+//        NSLog(@"%f",contentOffset.y/scrollOffsetThreshold);
         UIView* view = self.viewForState[self.state];
         if(view) {
             if([view isKindOfClass:[SVActivityIndicatorView class]]) {
@@ -853,7 +853,7 @@ static char UIScrollViewPullToRefreshView;
 -(CGFloat) framerate
 {
     CGFloat fr = self.duration / self.loadingImagesArray.count;
-    NSLog(@"frame rate: %f",fr);
+//    NSLog(@"frame rate: %f",fr);
     return fr;
 }
 
