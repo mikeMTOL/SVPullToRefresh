@@ -35,16 +35,26 @@
     for (int i=0;i<60;i++)
     {
         NSString *fname = [NSString stringWithFormat:@"loader%05d",i];
-        UIImage* img = [[UIImage imageNamed:fname] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        [images addObject:img];
+        [images addObject:[UIImage imageNamed:fname]];
     }
     
-    self.tableView.pullToRefreshView.activityIndicatorView = [[SVActivityIndicatorView alloc] initWithImageArray:images andDuration:1.0f];
-    self.tableView.pullToRefreshView.activityIndicatorView.tintColor = [UIColor redColor];
+    self.tableView.pullToRefreshView.activityIndicatorView = nil;
+//    self.tableView.pullToRefreshView.activityIndicatorView.tintColor = [UIColor redColor];
     
-    UIImageView* loadingImageView = [[UIImageView alloc] initWithImage:images.firstObject];
+    UIImage* loadingImg = (UIImage*)images.firstObject;
+    loadingImg = [loadingImg imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    UIImageView* loadingImageView = [[UIImageView alloc] initWithImage:loadingImg];
     loadingImageView.tintColor = [UIColor grayColor];
     [self.tableView.pullToRefreshView setCustomView:loadingImageView forState:SVPullToRefreshStateStopped];
+
+    loadingImageView = [[UIImageView alloc] initWithImage:loadingImg];
+    loadingImageView.tintColor = [UIColor redColor];
+    [self.tableView.pullToRefreshView setCustomView:loadingImageView forState:SVPullToRefreshStateTriggered];
+
+    SVActivityIndicatorView *actView = [[SVActivityIndicatorView alloc] initWithImageArray:images andDuration:1.0f];
+    actView.tintColor = [UIColor blueColor];
+    [actView startAnimating];
+    [self.tableView.pullToRefreshView setCustomView:actView forState:SVPullToRefreshStateLoading];
     
     // setup infinite scrolling
     [self.tableView addInfiniteScrollingWithActionHandler:^{

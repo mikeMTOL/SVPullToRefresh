@@ -224,6 +224,16 @@ static char UIScrollViewPullToRefreshView;
     self.subtitleLabel.hidden = hasCustomView;
     self.arrow.hidden = hasCustomView;
     
+    switch (self.state) {
+        case SVPullToRefreshStateAll:
+        case SVPullToRefreshStateStopped:
+            [self.activityIndicatorView stopAnimating];
+            break;
+        case SVPullToRefreshStateLoading:
+        case SVPullToRefreshStateTriggered:
+            [self.activityIndicatorView startAnimating];
+            break;
+    }
     if(hasCustomView) {
         [self addSubview:customView];
         CGRect viewBounds = [customView bounds];
@@ -402,7 +412,17 @@ static char UIScrollViewPullToRefreshView;
                 scrollOffsetThreshold = MAX(self.scrollView.contentSize.height - self.scrollView.bounds.size.height, 0.0f) + self.bounds.size.height + self.originalBottomInset;
                 break;
         }
-        
+        NSLog(@"%f",contentOffset.y/scrollOffsetThreshold);
+        UIView* view = self.viewForState[self.state];
+        if(view) {
+            if([view isKindOfClass:[SVActivityIndicatorView class]]) {
+                CGFloat progress = contentOffset.y/scrollOffsetThreshold;
+                if(progress>1.0) progress=1.0;
+                if(progress<0.0) progress=0.0;
+                SVActivityIndicatorView* activityView = (SVActivityIndicatorView*)view;
+                [activityView setIndicatorProgressPosition:progress];
+            }
+        }
         if(!self.scrollView.isDragging && self.state == SVPullToRefreshStateTriggered)
             self.state = SVPullToRefreshStateLoading;
         else if(contentOffset.y < scrollOffsetThreshold && self.scrollView.isDragging && self.state == SVPullToRefreshStateStopped && self.position == SVPullToRefreshPositionTop)
@@ -764,6 +784,8 @@ static char UIScrollViewPullToRefreshView;
 #pragma mark - SVActivityIndicatorView
 @interface SVActivityIndicatorView()
 @property (strong, nonatomic) UIImageView* imageView;
+@property (strong, nonatomic) NSTimer* animationTimer;
+@property (assign, nonatomic) int currentImageIndex;
 @end
 
 @implementation SVActivityIndicatorView
@@ -775,35 +797,81 @@ static char UIScrollViewPullToRefreshView;
     NSParameterAssert([imagesArray.firstObject isKindOfClass:[UIImage class]]);
     
     UIImage *firstImage = imagesArray.firstObject;
-
+    
     self = [super initWithFrame:CGRectMake(0, 0, firstImage.size.width, firstImage.size.height)];
     
     if(self) {
-        self.loadingImagesArray = imagesArray;
+        NSMutableArray* array = [[NSMutableArray alloc]init];
+        for(UIImage* img in imagesArray) {
+            [array addObject:[img imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
+        }
+        self.loadingImagesArray = array;
         self.duration = d;
         self.imageView = [[UIImageView alloc] initWithImage:firstImage];
-        self.imageView.animationImages = imagesArray;
-        self.imageView.animationDuration = self.duration;
-        self.imageView.animationRepeatCount = 0;
+        self.currentImageIndex = 0;
         [self addSubview:self.imageView];
     }
     
     return self;
 }
 
+-(void) setCurrentImageIndex:(int)currentImageIndex
+{
+    if(currentImageIndex < 0) currentImageIndex = 0;
+    if(currentImageIndex >= self.loadingImagesArray.count) currentImageIndex = 0;
+    
+    _currentImageIndex = currentImageIndex;
+    self.imageView.image = self.loadingImagesArray[self.currentImageIndex];
+}
+
+-(void) animateImages:(NSTimer*)theTimer
+{
+    self.currentImageIndex++;
+}
+
 - (void)startAnimating {
     [super startAnimating];
-    [self.imageView startAnimating];
+    if(self.animationTimer) {
+        [self.animationTimer invalidate];
+    }
+    self.animationTimer = [NSTimer scheduledTimerWithTimeInterval:self.framerate
+                                                           target:self
+                                                         selector:@selector(animateImages:)
+                                                         userInfo:self.imageView
+                                                          repeats:YES];
+}
+
+-(CGFloat) framerate
+{
+    CGFloat fr = self.duration / self.loadingImagesArray.count;
+    NSLog(@"frame rate: %f",fr);
+    return fr;
 }
 
 - (void)stopAnimating {
     [super stopAnimating];
-    [self.imageView  stopAnimating];
+    self.currentImageIndex = 0;
+    [self.animationTimer invalidate];
 }
 
 - (BOOL)isAnimating {
-    return self.imageView.isAnimating;
+    return self.animationTimer.isValid;
 }
 
+- (void)setIndicatorProgressPosition:(CGFloat) progress
+{
+    NSInteger index = (NSInteger)(progress*(self.loadingImagesArray.count-1));
+    if(self.isAnimating) {
+        [self.imageView stopAnimating];
+    }
+    
+    if(self.isHidden) {
+        self.hidden = NO;
+    }
+    
+    self.imageView.image = self.loadingImagesArray[index];
+    
+    
+}
 @end
 

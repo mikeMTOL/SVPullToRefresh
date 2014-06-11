@@ -29,6 +29,15 @@ typedef NS_ENUM(NSUInteger, SVPullToRefreshPosition) {
 
 @end
 
+@interface SVActivityIndicatorView: UIActivityIndicatorView
+
+@property (nonatomic, strong) NSArray* loadingImagesArray;
+@property (nonatomic, assign) CGFloat duration;
+
+-(instancetype) initWithImageArray:(NSArray*) imagesArray andDuration:(CGFloat)duration;
+- (void)setIndicatorProgressPosition:(CGFloat) progress;
+
+@end
 
 typedef NS_ENUM(NSUInteger, SVPullToRefreshState) {
     SVPullToRefreshStateStopped = 0,
@@ -44,6 +53,7 @@ typedef NS_ENUM(NSUInteger, SVPullToRefreshState) {
 @property (nonatomic, strong, readonly) UILabel *titleLabel;
 @property (nonatomic, strong, readonly) UILabel *subtitleLabel;
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicatorView NS_AVAILABLE_IOS(5_0);
+@property (nonatomic, strong) SVActivityIndicatorView *progressIndicatorView NS_AVAILABLE_IOS(5_0);
 @property (nonatomic, strong, readwrite) UIColor *activityIndicatorViewColor NS_AVAILABLE_IOS(5_0);
 @property (nonatomic, readwrite) UIActivityIndicatorViewStyle activityIndicatorViewStyle;
 @property (nonatomic, assign) BOOL triggerRefreshWithoutRelease;
@@ -68,12 +78,3 @@ typedef NS_ENUM(NSUInteger, SVPullToRefreshState) {
 
 @end
 
-
-@interface SVActivityIndicatorView: UIActivityIndicatorView
-
-@property (nonatomic, strong) NSArray* loadingImagesArray;
-@property (nonatomic, assign) CGFloat duration;
-
--(instancetype) initWithImageArray:(NSArray*) imagesArray andDuration:(CGFloat)duration;
-
-@end
