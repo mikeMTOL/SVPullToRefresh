@@ -53,7 +53,6 @@
 
     SVActivityIndicatorView *actView = [[SVActivityIndicatorView alloc] initWithImageArray:images andDuration:1.0f];
     actView.tintColor = [UIColor blueColor];
-    [actView startAnimating];
     [self.tableView.pullToRefreshView setCustomView:actView forState:SVPullToRefreshStateLoading];
     
     // setup infinite scrolling
