@@ -215,8 +215,8 @@ static char UIScrollViewPullToRefreshView;
     for(id otherView in self.viewForState) {
         if([otherView isKindOfClass:[UIView class]]) {
             [otherView removeFromSuperview];
-            if( [otherView isMemberOfClass:[SVActivityIndicatorView class]] ) {
-                [((SVActivityIndicatorView*)otherView) stopAnimating];
+            if( [otherView isKindOfClass:[UIActivityIndicatorView class]] ) {
+                [((UIActivityIndicatorView*)otherView) stopAnimating];
             }
 
         }
@@ -241,16 +241,9 @@ static char UIScrollViewPullToRefreshView;
     }
     if(hasCustomView) {
         [self addSubview:customView];
-        if( [customView isMemberOfClass:[SVActivityIndicatorView class]] ) {
-            [((SVActivityIndicatorView*)customView) startAnimating];
+        if( [customView isKindOfClass:[UIActivityIndicatorView class]] ) {
+            [((UIActivityIndicatorView*)customView) startAnimating];
         }
-//        ((UIView*)customView).alpha=0.0f;
-//        [UIView beginAnimations:@"FadeIn" context:nil];
-//        [UIView setAnimationDuration:0.2];
-//        [UIView setAnimationBeginsFromCurrentState:YES];
-//        [customView setAlpha:1];
-//        [UIView commitAnimations];
-//        ((UIView*)customView).alpha = 1.0f;
         CGRect viewBounds = [customView bounds];
         CGPoint origin = CGPointMake(roundf((self.bounds.size.width-viewBounds.size.width)/2), roundf((self.bounds.size.height-viewBounds.size.height)/2));
         [customView setFrame:CGRectMake(origin.x, origin.y, viewBounds.size.width, viewBounds.size.height)];
