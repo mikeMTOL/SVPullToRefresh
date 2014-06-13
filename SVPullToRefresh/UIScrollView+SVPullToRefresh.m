@@ -480,9 +480,14 @@ static char UIScrollViewPullToRefreshView;
 
 - (UIActivityIndicatorView *)activityIndicatorView {
     if(!_activityIndicatorView) {
-        _activityIndicatorView = [[SVActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
-        _activityIndicatorView.hidesWhenStopped = YES;
-        [self addSubview:_activityIndicatorView];
+        id customView = [self.viewForState objectAtIndex:self.state];
+        BOOL hasCustomView = [customView isKindOfClass:[UIView class]];
+        
+        if(!hasCustomView) {
+            _activityIndicatorView = [[SVActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+            _activityIndicatorView.hidesWhenStopped = YES;
+            [self addSubview:_activityIndicatorView];
+        }
     }
     return _activityIndicatorView;
 }
