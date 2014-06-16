@@ -28,7 +28,7 @@
     [self.tableView addPullToRefreshWithActionHandler:^{
         [weakSelf insertRowAtTop];
     }];
-    self.tableView.pullToRefreshView.superview.backgroundColor = [UIColor whiteColor];
+    self.tableView.pullToRefreshView.superview.backgroundColor = [UIColor grayColor];
     self.tableView.pullToRefreshView.triggerRefreshWithoutRelease = NO;
 
     NSMutableArray *images =[NSMutableArray array];

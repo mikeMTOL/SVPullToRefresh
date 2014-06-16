@@ -824,9 +824,14 @@ static char UIScrollViewPullToRefreshView;
         }
         self.loadingImagesArray = array;
         self.duration = d;
-        self.imageView = [[UIImageView alloc] initWithImage:firstImage];
+        self.imageView = self.subviews.firstObject;
+        self.imageView = [self.imageView initWithImage:firstImage];
+        self.imageView.contentMode = UIViewContentModeCenter;
+        self.imageView.frame = CGRectMake(0, 0, firstImage.size.width, firstImage.size.height);
         self.currentImageIndex = 0;
-        [self addSubview:self.imageView];
+        
+//        [self.subviews.firstObject removeFromSuperview];
+//        [self addSubview:self.imageView];
     }
     
     return self;
@@ -847,7 +852,8 @@ static char UIScrollViewPullToRefreshView;
 }
 
 - (void)startAnimating {
-    [super startAnimating];
+//    [super startAnimating];
+    self.hidden = NO;
     if(self.animationTimer) {
         [self.animationTimer invalidate];
     }
@@ -871,7 +877,10 @@ static char UIScrollViewPullToRefreshView;
 }
 
 - (void)stopAnimating {
-    [super stopAnimating];
+//    [super stopAnimating];
+    if(self.hidesWhenStopped) {
+        self.hidden = YES;
+    }
     self.currentImageIndex = 0;
     [self.animationTimer invalidate];
 }
