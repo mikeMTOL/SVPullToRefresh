@@ -214,11 +214,10 @@ static char UIScrollViewPullToRefreshView;
     
     for(id otherView in self.viewForState) {
         if([otherView isKindOfClass:[UIView class]]) {
-            [otherView removeFromSuperview];
             if( [otherView isKindOfClass:[UIActivityIndicatorView class]] ) {
                 [((UIActivityIndicatorView*)otherView) stopAnimating];
             }
-
+            [otherView removeFromSuperview];
         }
     }
     
@@ -229,26 +228,28 @@ static char UIScrollViewPullToRefreshView;
     self.subtitleLabel.hidden = hasCustomView;
     self.arrow.hidden = hasCustomView;
     
-    switch (self.state) {
-        case SVPullToRefreshStateAll:
-        case SVPullToRefreshStateStopped:
-            [self.activityIndicatorView stopAnimating];
-            break;
-        case SVPullToRefreshStateLoading:
-        case SVPullToRefreshStateTriggered:
-            [self.activityIndicatorView startAnimating];
-            break;
-    }
+    // if custom view is available, add to view and center
     if(hasCustomView) {
-        [self addSubview:customView];
+        if(![customView superview]) {
+            [self addSubview:customView];
+        }
         if( [customView isKindOfClass:[UIActivityIndicatorView class]] ) {
-            [((UIActivityIndicatorView*)customView) startAnimating];
+            switch (self.state) {
+                case SVPullToRefreshStateAll:
+                case SVPullToRefreshStateStopped:
+                    [((UIActivityIndicatorView*)customView) stopAnimating];
+                    [customView removeFromSuperview];
+                    break;
+                case SVPullToRefreshStateLoading:
+                case SVPullToRefreshStateTriggered:
+                    [((UIActivityIndicatorView*)customView) startAnimating];
+                    break;
+            }
         }
         CGRect viewBounds = [customView bounds];
         CGPoint origin = CGPointMake(roundf((self.bounds.size.width-viewBounds.size.width)/2), roundf((self.bounds.size.height-viewBounds.size.height)/2));
         [customView setFrame:CGRectMake(origin.x, origin.y, viewBounds.size.width, viewBounds.size.height)];
-    }
-    else {
+    } else {
         switch (self.state) {
             case SVPullToRefreshStateAll:
             case SVPullToRefreshStateStopped:
@@ -479,10 +480,13 @@ static char UIScrollViewPullToRefreshView;
 }
 
 - (UIActivityIndicatorView *)activityIndicatorView {
+    id customView = [self.viewForState objectAtIndex:self.state];
+    BOOL hasCustomView = [customView isKindOfClass:[UIActivityIndicatorView class]];
+    if(hasCustomView) {
+        _activityIndicatorView = customView;
+    }
+
     if(!_activityIndicatorView) {
-        id customView = [self.viewForState objectAtIndex:self.state];
-        BOOL hasCustomView = [customView isKindOfClass:[UIView class]];
-        
         if(!hasCustomView) {
             _activityIndicatorView = [[SVActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
             _activityIndicatorView.hidesWhenStopped = YES;
@@ -693,6 +697,14 @@ static char UIScrollViewPullToRefreshView;
     switch (newState) {
         case SVPullToRefreshStateAll:
         case SVPullToRefreshStateStopped:
+            for(id otherView in self.viewForState) {
+                if([otherView isKindOfClass:[UIView class]]) {
+                    if( [otherView isKindOfClass:[UIActivityIndicatorView class]] ) {
+                        [((UIActivityIndicatorView*)otherView) stopAnimating];
+                    }
+                    [otherView removeFromSuperview];
+                }
+            }
             [self resetScrollViewContentInset];
             break;
             
@@ -843,12 +855,18 @@ static char UIScrollViewPullToRefreshView;
     if(currentImageIndex >= self.loadingImagesArray.count) currentImageIndex = 0;
     
     _currentImageIndex = currentImageIndex;
-    self.imageView.image = self.loadingImagesArray[self.currentImageIndex];
+    @synchronized(self.imageView) {
+        if([self.imageView superview]) {
+            self.imageView.image = self.loadingImagesArray[self.currentImageIndex];
+        }
+    }
 }
 
 -(void) animateImages:(NSTimer*)theTimer
 {
-    self.currentImageIndex++;
+    if(theTimer.isValid) {
+        self.currentImageIndex++;
+    }
 }
 
 - (void)startAnimating {
@@ -865,7 +883,6 @@ static char UIScrollViewPullToRefreshView;
                                                              selector:@selector(animateImages:)
                                                              userInfo:self.imageView
                                                               repeats:YES];
-        
     }
 }
 
@@ -877,12 +894,18 @@ static char UIScrollViewPullToRefreshView;
 }
 
 - (void)stopAnimating {
+    if(!self.isAnimating) {
+        return;
+    }
 //    [super stopAnimating];
     if(self.hidesWhenStopped) {
         self.hidden = YES;
     }
-    self.currentImageIndex = 0;
+    if(self.currentImageIndex!=0) {
+        self.currentImageIndex = 0;
+    }
     [self.animationTimer invalidate];
+    self.animationTimer = nil;
 }
 
 - (BOOL)isAnimating {
@@ -893,16 +916,19 @@ static char UIScrollViewPullToRefreshView;
 {
     NSInteger index = (NSInteger)(progress*(self.loadingImagesArray.count-1));
     if(self.isAnimating) {
-        [self.imageView stopAnimating];
+        [self stopAnimating];
     }
     
     if(self.isHidden) {
         self.hidden = NO;
     }
     
-    self.imageView.image = self.loadingImagesArray[index];
-    
-    
+    @synchronized(self.imageView) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.imageView.image = self.loadingImagesArray[index];
+        });
+    }
+
 }
 @end
 
